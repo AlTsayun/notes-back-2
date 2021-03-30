@@ -1,5 +1,6 @@
 // import {Auth} from "../auth/auth";
 
+
 const express = require("express");
 const path = require("path");
 const bodyParser = require('body-parser')
@@ -18,6 +19,8 @@ let accountsHandler = new AccountsHandler()
 
 const routes = express.Router()
 
+// import cors from 'cors';
+// const server = express();
 
 // Set multer
 routes.use(multer({dest: path.resolve("uploads")}).any());
