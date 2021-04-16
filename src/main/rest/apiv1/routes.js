@@ -10,7 +10,7 @@ const fs = require('fs')
 const multer = require('multer')
 
 const Auth = require(path.resolve("src", "main", "domain", "auth", "service", "Auth.js"))
-let auth = new Auth()
+let auth = new Auth('secret123')
 
 const NotesHandler = require(path.resolve("src", "main", "domain", "note", "NotesHandler.js"))
 let notesHandler = new NotesHandler()
@@ -19,16 +19,12 @@ let accountsHandler = new AccountsHandler()
 
 const routes = express.Router()
 
-// import cors from 'cors';
-// const server = express();
-
 // Set multer
 routes.use(multer({dest: path.resolve("uploads")}).any());
 
+
 routes.get('/notes',
-    // (req, res, next) => {
-    // auth.verifyTokenMiddleware(req, res, next)
-// },
+    auth.verifyTokenInCookie.bind(auth),
     (req, res) => {
     let notes = Array.from(notesHandler.getAllNotes())
 
@@ -47,7 +43,9 @@ routes.get('/about', (req, res) => {
     res.json({aboutText: "this is about text"})
 })
 
-routes.post('/notes', (req, res) => {
+routes.post('/notes',
+    auth.verifyTokenInCookie.bind(auth),
+    (req, res) => {
 
     console.log('post body: ', req.body)
 
@@ -82,6 +80,7 @@ routes.put('/notes/:noteId', urlEncodedParser, (req, res) => {
     let oldNote = notesHandler.getNoteById(req.params.noteId)
     let newFiles = oldNote.files.concat(req.files)
     console.log('Put body', req.body)
+    console.log('req.files', req.files)
     let note = {
         id: req.params.noteId,
         title: req.body.title,
@@ -94,7 +93,7 @@ routes.put('/notes/:noteId', urlEncodedParser, (req, res) => {
     res.status(201).json(note)
 })
 
-routes.delete('/notes/:noteId', urlEncodedParser, (req, res) => {
+routes.delete('/notes/:noteId', (req, res) => {
     let note = notesHandler.getNoteById(req.params.noteId)
     if (note !== undefined) {
         for (let file of note.files) {
@@ -126,7 +125,7 @@ routes.get('/notes/:noteId/attachments/files/:filename', (req, res) => {
     }
 })
 
-routes.delete('/notes/:noteId/attachments/files/:filename', urlEncodedParser, (req, res) => {
+routes.delete('/notes/:noteId/attachments/files/:filename', (req, res) => {
     let note = notesHandler.getNoteById(req.params.noteId)
     if (note !== undefined) {
         let file = note.files.find((file) => {
@@ -149,30 +148,38 @@ routes.delete('/notes/:noteId/attachments/files/:filename', urlEncodedParser, (r
     }
 })
 
-routes.post('/login', (req, res) => {
-    const user = {
+routes.post('/login', jsonBodyParser, (req, res) => {
+    console.log('Post body', req.body)
+    const inputCredentials = {
         username: req.body.username,
         password: req.body.password,
         salt: req.body.salt
     }
-    accountsHandler.getUserByUsername(req.body.username)
-    auth.sign({user}, (err, token) => {
-        res.json({
-            token
+    const user = accountsHandler.getUserByUsername(req.body.username)
+    if (user !== undefined){
+        auth.sign({user}, (err, token) => {
+            console.log('created token', token)
+            res.cookie('token', token, {  
+                maxAge: 30000000,
+                httpOnly: true
+             })
+            res.status(200).send()
         })
-    })
-
+    } else {
+        console.log('Incorrect credentials while login')
+        res.status(401).send()
+    }
 
 
 })
 
 routes.post('/signup', jsonBodyParser, (req, res) => {
-    console.log(req.body)
+    console.log('Post body', req.body)
     const user = {
         username: req.body.username,
         password: req.body.password
     }
     accountsHandler.addUser(user)
-    res.status(201).json(accountsHandler.getUserByUsername(req.body.username))
+    res.status(201).json(accountsHandler.getUserByUsername(req.body.username)).send()
 })
 module.exports = routes

@@ -8,7 +8,7 @@ module.exports = class AccountsHandler{
 
     addUser(user){
         this.usernameToAccount.set(user.username, user)
-        console.log('NotesHandler added note', user)
+        console.log('AccountsHandler added user', user)
         return user
     }
 

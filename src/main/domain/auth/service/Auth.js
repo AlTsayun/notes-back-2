@@ -1,9 +1,15 @@
-const jwt = require('jsonwebtoken')
+const jsonwebtoken = require('jsonwebtoken')
+// const ejwt = require('express-jwt');
 
 module.exports = class Auth{
-    secretkey = "secretkey"
 
-    verifyTokenMiddleware(req, res, next){
+    constructor(secretKey){
+        this.secretKey = secretKey
+    }
+
+    
+
+    verifyTokenInHeader(req, res, next){
         const bearerHeader = req.header('authorization')
         // console.log(req.header('authorization'))
 
@@ -12,8 +18,9 @@ module.exports = class Auth{
             const bearerToken = bearer[1]
 
             console.log(bearerToken)
-            jwt.verify(bearerToken, this.secretkey, (err, authData)=> {
+            jsonwebtoken.verify(bearerToken, this.secretKey, (err, authData)=> {
                 if (err){
+                    console.log('Token not verified')
                     res.sendStatus(403)
                 } else {
                     console.log('Token verified')
@@ -25,7 +32,22 @@ module.exports = class Auth{
         }
     }
 
+    verifyTokenInCookie(req, res, next){
+        console.log(this)
+        console.log('recieved cookies', req.cookies)
+        jsonwebtoken.verify(req.cookies.token, this.secretKey, (err, authData)=> {
+            if (err){
+                console.log('Token not verified')
+                res.sendStatus(403)
+            } else {
+                console.log('Token verified')
+                next()
+            }
+        })
+    }
+
+
     sign(credentials, tokenHandler){
-        jwt.sign(credentials, this.secretkey, tokenHandler)
+        jsonwebtoken.sign(credentials, this.secretKey, tokenHandler)
     }
 }

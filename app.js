@@ -7,5 +7,8 @@ const port = 5000
 const cors = require('cors');
 app.use(cors());
 
+const cookieParser = require('cookie-parser')
+app.use(cookieParser())
+
 app.use("/api", routes)
 app.listen(process.env.PORT || port, () => console.log(`Server is running on port ${port}...`));
