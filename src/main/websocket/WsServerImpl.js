@@ -11,17 +11,19 @@ module.exports = class WsServerImpl{
     }
 
     listen(port){
+        this.port = port
         const WebSocketServer = require('websocket').server
         this.httpServer.listen(port)
         this.wsServer = new WebSocketServer({ httpServer: this.httpServer })
         this.wsServer.on('request', (request) => this.onRequest(request))
+        console.log(`Websocket server is running on port ${port}...`)
     }
 
     onRequest(request){
         const userID = this.idGenerator.getUniqueId()
         console.log((new Date()) + ' Recieved a new request from origin ' + request.origin + '.')
         
-        // You can rewrite this part of the code to accept only the requests from allowed origin
+        //TODO: rewrite this part of the code to accept only the requests from allowed origin
         const connection = request.accept(null, request.origin)
         connection.on('message', (message) => this.onMessage(message, connection))
         connection.on('close', (connection) => this.onCloseConnection(connection, userID))
@@ -44,12 +46,7 @@ module.exports = class WsServerImpl{
 
     onCloseConnection(connection, userID){
         console.log((new Date()) + " Peer " + userID + " disconnected.")
-        // const json = { type: typesDef.USER_EVENT }
-        // userActivity.push(`${users[userID].username} left the document`)
-        // json.data = { users, userActivity }
         delete this.clients[userID]
-        // delete users[userID]
-        // sendMessage(JSON.stringify(json))
     }
 
 }
