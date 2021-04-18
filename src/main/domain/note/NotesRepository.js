@@ -45,7 +45,7 @@ module.exports = class NotesRepository{
         return this.idToNote.get(noteId)
     }
     getAllNotes(params){
-        let notes = this.idToNote.values()     
+        let notes = Array.from(this.idToNote.values())
 
         if (params.statusFilter === "to do") {
             notes = notes.filter((note) => note.status === "to do")
