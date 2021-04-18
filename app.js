@@ -1,3 +1,4 @@
+
 // Common
 
 const path = require("path")
@@ -6,23 +7,31 @@ const notesRepo = new NotesRepo()
 const NotesService = require(path.resolve("src", "main", "domain", "note", "NotesService.js"))
 const notesService = new NotesService(notesRepo)
 
+const Auth = require(path.resolve("src", "main", "domain", "auth", "service", "Auth.js"))
+const auth = new Auth('secret123')
+
+const AccountsHandler = require(path.resolve("src", "main", "domain", "account", "AccountsHandler.js"))
+const accountsHandler = new AccountsHandler()
+
 // Rest
 
-const express = require("express");
-const routes = require(path.resolve("src", "main", "rest", "apiv1", "routes.js"))
-const app = express();
-const port = 5000
+const RestController = require(path.resolve("src", "main", "rest", "apiv1", "RestController.js"))
+const restController = new RestController(notesService, auth, accountsHandler)
 
-const cors = require('cors');
-app.use(cors());
+const restPort = 5000
 
-const cookieParser = require('cookie-parser');
+const express = require("express")
+const restApp = express()
 
-app.use(cookieParser())
+const cors = require('cors')
+restApp.use(cors())
 
-app.use("/api", routes)
-app.listen(process.env.PORT || port, () => console.log(`Server is running on port ${port}...`));
+const cookieParser = require('cookie-parser')
+restApp.use(cookieParser())
 
+restApp.use("/api", restController.getRouter())
+
+restApp.listen(process.env.PORT || restPort, () => console.log(`Rest server is running on port ${restPort}...`))
 
 // Web socket
 
