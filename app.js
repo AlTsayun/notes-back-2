@@ -42,3 +42,21 @@ const webSocketsServerPort = 8000
 const wsMessageHandler = new MessageHandler(notesService)
 const wsServerImpl = new WsServerImpl(wsMessageHandler)
 wsServerImpl.listen(webSocketsServerPort)
+
+// GraphQL
+
+const graphqlBuildSchema = require(path.resolve("src", "main", "graphql", "BuildSchemaImpl.js"))
+const RootResolver = require(path.resolve("src", "main", "graphql", "RootResolver.js"))
+const rootResolver = new RootResolver(notesService)
+var { graphqlHTTP } = require('express-graphql')
+
+
+const graphQlServer = express()
+graphQlServer.use('/graphql', graphqlHTTP({
+  schema: graphqlBuildSchema,
+  rootValue: rootResolver.root,
+  graphiql: true,
+}));
+
+graphQlServer.listen(4000)
+console.log('Running a GraphQL API server at http://localhost:4000/graphql')
