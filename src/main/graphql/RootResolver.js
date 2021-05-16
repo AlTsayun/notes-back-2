@@ -7,35 +7,35 @@ module.exports =
         }
 
         root = {
-            getNotes: (params) => {
-                console.log('getNotes recieved params:', params)
-                let notes = this.notesService.getAllNotes(params)
+            getNotes: (args) => {
+                console.log('getNotes recieved args:', args)
+                let notes = this.notesService.getAllNotes(args)
                 console.log('getNotes responses:', notes)
-              return JSON.stringify(notes)
+              return notes
             },
-            getNote: (params) => {
-                console.log('getNote recieved params:', params)
-                let note = this.notesService.getNoteById(params.id)
+            getNote: (args) => {
+                console.log('getNote recieved args:', args)
+                let note = this.notesService.getNoteById(args.id)
                 console.log('getNote responses:', note)
-              return JSON.stringify(note)
+              return note
             },
-            addNote: (params) => {
-                console.log('addNote recieved params:', params)
+            addNote: (args) => {
+                console.log('addNote recieved args:', args)
                 let note = this.notesService.addNote()
                 console.log('addNote responses:', note)
-              return JSON.stringify(note)
+              return note
             },
-            updateNote: (params) => {
-                console.log('updateNote recieved params:', params)
-                let updateResult = this.notesService.updateNote(params)
+            updateNote: (args) => {
+                console.log('updateNote recieved args:', args)
+                let updateResult = this.notesService.updateNote(args)
                 console.log('updateNote responses:', updateResult)
-              return JSON.stringify(updateResult)
+              return updateResult
             },
-            deleteNote: (params) => {
-                console.log('deleteNote recieved params:', params)
-                let deleteResult = this.notesService.removeNote(params.id)
+            deleteNote: (args) => {
+                console.log('deleteNote recieved args:', args)
+                let deleteResult = this.notesService.removeNote(args.id)
                 console.log('deleteNote responses:', deleteResult)
-              return JSON.stringify(deleteResult)
+              return deleteResult
             }
           }
     }

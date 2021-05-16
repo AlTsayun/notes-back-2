@@ -52,11 +52,14 @@ var { graphqlHTTP } = require('express-graphql')
 
 
 const graphQlServer = express()
+
+graphQlServer.use(cors())
+
 graphQlServer.use('/graphql', graphqlHTTP({
   schema: graphqlBuildSchema,
   rootValue: rootResolver.root,
   graphiql: true,
-}));
+}))
 
 graphQlServer.listen(4000)
 console.log('Running a GraphQL API server at http://localhost:4000/graphql')
