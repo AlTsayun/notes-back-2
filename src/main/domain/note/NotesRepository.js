@@ -55,6 +55,12 @@ module.exports = class NotesRepository{
             notes = notes.filter((note) => note.status === "done")
         }
 
+        if (params.completionDateOrder === "newest"){
+            notes.sort((a, b) => a.completionDate > b.completionDate && -1 || 1)
+        } else if (params.completionDateOrder === "oldest"){
+            notes.sort((a, b) => a.completionDate < b.completionDate && -1 || 1)
+        }
+
         return notes
     }
 
